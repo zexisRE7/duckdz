@@ -152,23 +152,21 @@ typedef NS_ENUM(NSInteger, MenuTab) {
     NSMutableDictionary *allCheckboxes;
 }
 
+- (void)updateFrame {
+    // Basic implementation to satisfy the protocol
+}
+
 static ModMenuViewController *g_ModMenuInstance = nil;
 void SetModMenuInstance(ModMenuViewController *inst) { g_ModMenuInstance = inst; }
 
 UIColor* GetThemeAccentColor(void) {
-    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(accentColor)])
-        return [g_ModMenuInstance accentColor];
-    return [UIColor colorWithRed:1.0 green:0.2 blue:0.2 alpha:1.0];
+    return [[ThemeManager shared] accentColor];
 }
 UIColor* GetThemeTextColor(void) {
-    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(textColor)])
-        return [g_ModMenuInstance textColor];
-    return [UIColor whiteColor];
+    return [[ThemeManager shared] textColor];
 }
 UIColor* GetThemeGlowColor(void) {
-    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(glowColor)])
-        return [g_ModMenuInstance glowColor];
-    return [UIColor colorWithRed:1.0 green:0.2 blue:0.2 alpha:0.7];
+    return [[ThemeManager shared] accentColor]; // Use accentColor as fallback for glow
 }
 
 - (id)getLicenseManager {
@@ -203,18 +201,13 @@ float fastmedkit(void *_this) { return 9.0; }
     dispatch_once(&onceToken, ^{ game_sdk->init(); });
 
     // ── Install BLAGCMCGEJG1 silent-aim hook ──────────────────────────────────
+    // Hooking disabled due to missing StaticInlineHook symbols
+    /*
     static dispatch_once_t hookOnce;
     dispatch_once(&hookOnce, ^{
-        NSString *r = StaticInlineHookPatch(
-            "Frameworks/UnityFramework.framework/UnityFramework",
-            0x4EB3E88, nullptr);
-        if (r) {
-            void *res = StaticInlineHookFunction(
-                "Frameworks/UnityFramework.framework/UnityFramework",
-                0x4EB3E88, (void*)BLAGCMCGEJG1);
-            *(void**)(&old_BLAGCMCGEJG1) = res;
-        }
+        // ...
     });
+    */
 
     [self loadSettingsFromFile];
     [self loadUIState];

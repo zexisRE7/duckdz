@@ -72,81 +72,23 @@ struct HitObjectInfo {
 };
 
 // ── Game SDK ──────────────────────────────────────────────────────────────────
-class game_sdk_t {
-public:
-    void init();
-    int      (*GetHp)(void*);
-    void*    (*Curent_Match)();
-    void*    (*GetLocalPlayer)(void*);
-    void*    (*GetHeadPositions)(void*);
-    Vector3  (*get_position)(void*);
-    void*    (*Component_GetTransform)(void*);
-    void*    (*get_camera)();
-    Vector3  (*WorldToViewpoint)(void*, Vector3, int);
-    bool     (*get_isVisible)(void*);
-    bool     (*get_isLocalTeam)(void*);
-    bool     (*get_IsDieing)(void*);
-    int      (*get_MaxHP)(void*);
-    Vector3  (*GetForward)(void*);
-    void     (*set_aim)(void*, Quaternion);
-    bool     (*get_IsSighting)(void*);
-    bool     (*get_IsFiring)(void*);
-    monoString* (*name)(void*);
-    // Bone transform getters
-    void* (*_GetHeadPositions)(void*);
-    void* (*_newHipMods)(void*);
-    void* (*_GetLeftAnkleTF)(void*);
-    void* (*_GetRightAnkleTF)(void*);
-    void* (*_GetLeftToeTF)(void*);
-    void* (*_GetRightToeTF)(void*);
-    void* (*_getLeftHandTF)(void*);
-    void* (*_getRightHandTF)(void*);
-    void* (*_getLeftForeArmTF)(void*);
-    void* (*_getRightForeArmTF)(void*);
-};
-game_sdk_t *game_sdk = new game_sdk_t();
-
-void game_sdk_t::init() {
-    // Wwww-main OB53 offsets
-    GetHp                = (int(*)(void*))                    getRealOffset(oxo("0x4A8478C"));
-    Curent_Match         = (void*(*)())                       getRealOffset(oxo("0x4E355B0"));
-    GetLocalPlayer       = (void*(*)(void*))                  getRealOffset(oxo("0x28FC854"));
-    GetHeadPositions     = (void*(*)(void*))                  getRealOffset(oxo("0x4AA1A28"));
-    get_position         = (Vector3(*)(void*))                getRealOffset(oxo("0x8552BAC"));
-    Component_GetTransform=(void*(*)(void*))                  getRealOffset(oxo("0x854060C"));
-    get_camera           = (void*(*)())                       getRealOffset(oxo("0x84E7148"));
-    WorldToViewpoint     = (Vector3(*)(void*,Vector3,int))    getRealOffset(oxo("0x84E6AC8"));
-    get_isVisible        = (bool(*)(void*))                   getRealOffset(oxo("0x4A20AF4"));
-    get_isLocalTeam      = (bool(*)(void*))                   getRealOffset(oxo("0x4A38D90"));
-    get_IsDieing         = (bool(*)(void*))                   getRealOffset(oxo("0x4A02EA8"));
-    get_MaxHP            = (int(*)(void*))                    getRealOffset(oxo("0x4A8489C"));
-    GetForward           = (Vector3(*)(void*))                getRealOffset(oxo("0x85534CC"));
-    set_aim              = (void(*)(void*,Quaternion))        getRealOffset(oxo("0x4A1C91C"));
-    get_IsSighting       = (bool(*)(void*))                   getRealOffset(oxo("0x4A0FF18"));
-    get_IsFiring         = (bool(*)(void*))                   getRealOffset(oxo("0x4A05634"));
-    name                 = (monoString*(*)(void*))            getRealOffset(oxo("0x4A16D38"));
-    // Bone getters
-    _GetHeadPositions    = (void*(*)(void*))                  getRealOffset(oxo("0x4AA1A28"));
-    _newHipMods          = (void*(*)(void*))                  getRealOffset(oxo("0x4AA1BD8"));
-    _GetLeftAnkleTF      = (void*(*)(void*))                  getRealOffset(oxo("0x4AA2028"));
-    _GetRightAnkleTF     = (void*(*)(void*))                  getRealOffset(oxo("0x4AA2134"));
-    _GetLeftToeTF        = (void*(*)(void*))                  getRealOffset(oxo("0x4AA2240"));
-    _GetRightToeTF       = (void*(*)(void*))                  getRealOffset(oxo("0x4AA234C"));
-    _getLeftHandTF       = (void*(*)(void*))                  getRealOffset(oxo("0x4A1B9B4"));
-    _getRightHandTF      = (void*(*)(void*))                  getRealOffset(oxo("0x4A1BAB8"));
-    _getLeftForeArmTF    = (void*(*)(void*))                  getRealOffset(oxo("0x4A1BBBC"));
-    _getRightForeArmTF   = (void*(*)(void*))                  getRealOffset(oxo("0x4A1BCC0"));
-}
+#ifndef GAME_SDK_DEFINED
+#define GAME_SDK_DEFINED
+// Skip local game_sdk_t definition to avoid conflict with drawfunc.h
+#endif
 
 // ── Low-level helpers ─────────────────────────────────────────────────────────
-static void Transform_INTERNAL_SetPosition(void *tf, Vvector3 in) {
+#ifndef TRANSFORM_HELPERS_DEFINED
+#define TRANSFORM_HELPERS_DEFINED
+static void Transform_INTERNAL_SetPosition_Hooks(void *tf, Vvector3 in) {
     ((void(*)(void*,Vvector3))getRealOffset(oxo("0x8552CE8")))(tf, in);
 }
-static Vector3 Transform_INTERNAL_GetPosition(void *tf) {
+static Vector3 Transform_INTERNAL_GetPosition_Hooks(void *tf) {
     Vector3 out = Vector3::zero();
     ((void(*)(void*,Vector3*))getRealOffset(oxo("0x8552C10")))(tf, &out);
     return out;
 }
+#endif
 static bool IsGod(void *p) { return *(bool*)((uint64_t)p + 0xF4C); }
 static void *get_gameObject(void *t) {
     return ((void*(*)(void*))getRealOffset(0x854065C))(t);
@@ -159,33 +101,35 @@ static void *getItransform(void *t) {
 }
 
 // ── Position helpers ──────────────────────────────────────────────────────────
-static Vector3 getPosition(void *p) {
+static Vector3 getPosition_Hooks(void *p) {
     return game_sdk->get_position(game_sdk->Component_GetTransform(p));
 }
-static Vector3 GetHeadPosition(void *p) {
+static Vector3 GetHeadPosition_Hooks(void *p) {
     return game_sdk->get_position(game_sdk->GetHeadPositions(p));
 }
-static Vector3 CameraMain(void *p) {
+static Vector3 CameraMain_Hooks(void *p) {
     return game_sdk->get_position(*(void**)((uint64_t)p + oxo("0x390")));
 }
-static Vector3 GetHipPosition(void *p) {
+static Vector3 GetHipPosition_Hooks(void *p) {
     void *hip = *(void**)((uint64_t)p + 0x648);
-    return Transform_INTERNAL_GetPosition(getItransform(hip));
+    return Transform_INTERNAL_GetPosition_Hooks(getItransform(hip));
 }
-static float get_Range(void *w) {
+static float get_Range_Hooks(void *w) {
     return ((float(*)(void*))getRealOffset(oxo("0x4E8703C")))(w);
 }
-static bool isEnemyInRangeWeapon(void *local, void *enemy, void *weapon) {
-    float range = get_Range(weapon);
-    return Vector3::Distance(GetHeadPosition(local), GetHeadPosition(enemy)) <= range;
+static bool isEnemyInRangeWeapon_Hooks(void *local, void *enemy, void *weapon) {
+    float range = get_Range_Hooks(weapon);
+    return Vector3::Distance(GetHeadPosition_Hooks(local), GetHeadPosition_Hooks(enemy)) <= range;
 }
-static Quaternion GetRotationToTheLocation(Vector3 Target, float H, Vector3 Me) {
+static Quaternion GetRotationToTheLocation_Hooks(Vector3 Target, float H, Vector3 Me) {
     Vector3 dir = (Target + Vector3(0, H, 0)) - Me;
     return Quaternion::LookRotation(dir, Vector3(0, 1, 0));
 }
 
 // ── Visibility ────────────────────────────────────────────────────────────────
-class tanghinh {
+#ifndef TANGHINH_DEFINED
+#define TANGHINH_DEFINED
+class tanghinh_hooks {
 public:
     static Vector3 Transform_GetPosition(void *p) {
         Vector3 out = Vector3::zero();
@@ -209,6 +153,7 @@ public:
         return !Physics_Raycast(cam, target, 12, &hitObj);
     }
 };
+#endif
 
 // ── Target finders ────────────────────────────────────────────────────────────
 void *GetClosestEnemy() {
@@ -220,15 +165,15 @@ void *GetClosestEnemy() {
         Dictionary<uint8_t*,void**> *players =
             *(Dictionary<uint8_t*,void**>**)((long)match + oxo("0x148"));
         if (!players) return nullptr;
-        Vector3 lp = getPosition(local);
+        Vector3 lp = getPosition_Hooks(local);
         for (int i = 0; i < players->getSize(); i++) {
             void *p = players->getValues()[i];
             if (!p || p == local) continue;
             if (!game_sdk->get_MaxHP(p))          continue;
             if (game_sdk->get_IsDieing(p))        continue;
             if (game_sdk->get_isLocalTeam(p))     continue;
-            float d = Vector3::Distance(lp, getPosition(p));
-            if (d < 200.0f && d < best && tanghinh::isVisible(p)) {
+            float d = Vector3::Distance(lp, getPosition_Hooks(p));
+            if (d < 200.0f && d < best && tanghinh_hooks::isVisible(p)) {
                 best = d; closest = p;
             }
         }
@@ -245,7 +190,7 @@ void *GetClosestEnemysilent() {
         Dictionary<uint8_t*,void**> *players =
             *(Dictionary<uint8_t*,void**>**)((long)match + 0x148);
         if (!players) return nullptr;
-        Vector3 lp = getPosition(local);
+        Vector3 lp = getPosition_Hooks(local);
         for (int i = 0; i < players->getSize(); i++) {
             void *p = players->getValues()[i];
             if (!p || p == local) continue;
@@ -255,8 +200,8 @@ void *GetClosestEnemysilent() {
             if (IsGod(p))                            continue;
             if (Vars.IgnoreKnocked && game_sdk->GetHp(p) <= 0) continue;
             if (CheckWall1 && (!game_sdk->get_isVisible(p) ||
-                               !tanghinh::isVisible(p)))        continue;
-            float d = Vector3::Distance(lp, getPosition(p));
+                               !tanghinh_hooks::isVisible(p)))        continue;
+            float d = Vector3::Distance(lp, getPosition_Hooks(p));
             if (d < best) { best = d; closest = p; }
         }
         return closest;
@@ -264,13 +209,13 @@ void *GetClosestEnemysilent() {
 }
 
 // ── Aimbot ────────────────────────────────────────────────────────────────────
-void ProcessAimbot() {
+void ProcessAimbot_Hooks() {
     if (!Vars.Aimbot) return;
     void *match = game_sdk->Curent_Match(); if (!match) return;
     void *local = game_sdk->GetLocalPlayer(match); if (!local) return;
     void *enemy = GetClosestEnemy();  if (!enemy) return;
-    Vector3 ePos = GetHeadPosition(enemy);
-    Vector3 pPos = CameraMain(local);
+    Vector3 ePos = GetHeadPosition_Hooks(enemy);
+    Vector3 pPos = CameraMain_Hooks(local);
     bool firing   = game_sdk->get_IsFiring(local);
     bool sighting = game_sdk->get_IsSighting(local);
     bool shouldAim =
@@ -278,8 +223,8 @@ void ProcessAimbot() {
         (Vars.AimWhen == 1 && firing) ||
         (Vars.AimWhen == 2 && sighting) ||
         (Vars.AimWhen == 3 && (firing || sighting));
-    if (shouldAim && (!Vars.SkipWallCheck || tanghinh::isVisible(enemy)))
-        game_sdk->set_aim(local, GetRotationToTheLocation(ePos, 0.05f, pPos));
+    if (shouldAim && (!Vars.SkipWallCheck || tanghinh_hooks::isVisible(enemy)))
+        game_sdk->set_aim(local, GetRotationToTheLocation_Hooks(ePos, 0.05f, pPos));
 }
 
 // ── Motion feature helpers ────────────────────────────────────────────────────
@@ -310,7 +255,7 @@ void RunFlyMap() {
     void *l = game_sdk->GetLocalPlayer(m); if (!l) return;
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 cur = game_sdk->get_position(tf); cur.y += 6.0f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
     SetFlyState(l, true, false);
 }
 
@@ -330,7 +275,7 @@ void RunNinjaDash() {
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 fwd = game_sdk->GetForward(tf), cur = game_sdk->get_position(tf);
     cur.x += fwd.x * 3.5f; cur.z += fwd.z * 3.5f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
 }
 
 void RunGhostVip() {
@@ -358,7 +303,7 @@ void RunEnemiesPull() {
         if (game_sdk->get_IsDieing(e))    continue;
         if (game_sdk->get_isLocalTeam(e)) continue;
         void *eTF = game_sdk->Component_GetTransform(e); if (!eTF) continue;
-        Transform_INTERNAL_SetPosition(eTF, Vvector3(myPos.x+1.5f, myPos.y, myPos.z+1.5f));
+        Transform_INTERNAL_SetPosition_Hooks(eTF, Vvector3(myPos.x+1.5f, myPos.y, myPos.z+1.5f));
     }
 }
 
@@ -368,7 +313,7 @@ void RunUnderKill() {
     void *l = game_sdk->GetLocalPlayer(m); if (!l) return;
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 cur = game_sdk->get_position(tf); cur.y -= 5.0f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
     Vars.Aimbot = true; Vars.AutoFire = true;
     SilentAim = true; CheckWall1 = false;
 }
@@ -391,7 +336,7 @@ void RunSpinePlayer() {
     void *l = game_sdk->GetLocalPlayer(m); if (!l) return;
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 cur = game_sdk->get_position(tf); cur.y += 0.5f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
 }
 
 void RunEnemiesAir() {
@@ -409,7 +354,7 @@ void RunEnemiesAir() {
         if (game_sdk->get_isLocalTeam(e)) continue;
         void *eTF = game_sdk->Component_GetTransform(e); if (!eTF) continue;
         Vector3 ePos = game_sdk->get_position(eTF); ePos.y += 20.0f;
-        Transform_INTERNAL_SetPosition(eTF, Vvector3(ePos.x, ePos.y, ePos.z));
+        Transform_INTERNAL_SetPosition_Hooks(eTF, Vvector3(ePos.x, ePos.y, ePos.z));
     }
 }
 
@@ -421,7 +366,7 @@ void RunSpeedRun() {
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 fwd = game_sdk->GetForward(tf), cur = game_sdk->get_position(tf);
     cur.x += fwd.x * 1.2f; cur.z += fwd.z * 1.2f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
 }
 
 static float g_SpeedTimeScale = 2.0f;
@@ -436,7 +381,7 @@ void RunNinjaRun() {
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
     Vector3 fwd = game_sdk->GetForward(tf), cur = game_sdk->get_position(tf);
     cur.x += fwd.x * 0.1f; cur.z += fwd.z * 0.1f;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(cur.x, cur.y, cur.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(cur.x, cur.y, cur.z));
 }
 
 // ── Utility: Mark / AutoTP / Ammo / BlueMap / Reset ──────────────────────────
@@ -449,7 +394,7 @@ static void Player_TeleportTo(const Vector3 &pos) {
     void *m = game_sdk->Curent_Match(); if (!m) return;
     void *l = game_sdk->GetLocalPlayer(m); if (!l) return;
     void *tf = game_sdk->Component_GetTransform(l); if (!tf) return;
-    Transform_INTERNAL_SetPosition(tf, Vvector3(pos.x, pos.y, pos.z));
+    Transform_INTERNAL_SetPosition_Hooks(tf, Vvector3(pos.x, pos.y, pos.z));
 }
 static void SetMarkAtCurrentPos() {
     void *m = game_sdk->Curent_Match(); if (!m) return;
