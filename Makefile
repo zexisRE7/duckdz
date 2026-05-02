@@ -15,13 +15,19 @@ TWEAK_NAME = ffz
 $(TWEAK_NAME)_CCFLAGS = -std=c++17 -fno-rtti -DNDEBUG -Wall \
     -Wno-deprecated-declarations -Wno-unused-variable \
     -Wno-unused-value -Wno-unused-function \
+    -Wno-module-import-in-extern-c \
+    -fno-modules \
     -fvisibility=default
 
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wall \
     -Wno-deprecated-declarations -Wno-unused-variable \
     -Wno-unused-value -Wno-unused-function
 
-$(TWEAK_NAME)_LDFLAGS = -lSystem
+$(TWEAK_NAME)_LDFLAGS  = -lSystem
+$(TWEAK_NAME)_LDFLAGS += JRMemory.framework/JRMemory
+
+$(TWEAK_NAME)_OBJ_FILES = \
+    KittyMemory/Deps/Keystone/libs-ios/$(THEOS_CURRENT_ARCH)/libkeystone.a
 
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation Security QuartzCore \
     CoreGraphics CoreText AVFoundation Accelerate GLKit \
