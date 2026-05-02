@@ -34,7 +34,6 @@
 #import <sys/socket.h>
 #include "Helper/Vector3.h"
 #import "Helper/SecurityCheck.h"
-#import <substrate.h>
 #include "hook/hook.h"
 #include <sstream>
 #include <cstring>
@@ -205,7 +204,7 @@ float fastmedkit(void *_this) { return 9.0; }
     // ── Install BLAGCMCGEJG1 silent-aim hook ──────────────────────────────────
     static dispatch_once_t hookOnce;
     dispatch_once(&hookOnce, ^{
-        MSHookFunction(
+        DobbyHook(
             (void*)getRealOffset(oxo("0x4EB3E88")),
             (void*)BLAGCMCGEJG1,
             (void**)&old_BLAGCMCGEJG1);
