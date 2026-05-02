@@ -204,7 +204,7 @@ float fastmedkit(void *_this) { return 9.0; }
     // ── Install BLAGCMCGEJG1 silent-aim hook ──────────────────────────────────
     static dispatch_once_t hookOnce;
     dispatch_once(&hookOnce, ^{
-        DobbyHook(
+        A64HookFunction(
             (void*)getRealOffset(oxo("0x4EB3E88")),
             (void*)BLAGCMCGEJG1,
             (void**)&old_BLAGCMCGEJG1);
