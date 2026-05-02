@@ -197,16 +197,20 @@ void *GetClosestEnemysilent() {
 
 // ── Motion helpers ────────────────────────────────────────────────────────────
 static void SetFlyState(void *p, bool fly, bool keepVel = false) {
-    ((void(*)(void*,bool,bool))getRealOffset(oxo("0x4F486B0")))(p, fly, keepVel);
+    auto fn = (void(*)(void*,bool,bool))getRealOffset(oxo("0x4F486B0"));
+    if (fn) fn(p, fly, keepVel);
 }
 static void UnLockMaxSpeed(void *p) {
-    ((void(*)(void*))getRealOffset(oxo("0x4F4E708")))(p);
+    auto fn = (void(*)(void*))getRealOffset(oxo("0x4F4E708"));
+    if (fn) fn(p);
 }
 static void ForceMovePlayer(void *p, Vector3 dir) {
-    ((void(*)(void*,Vector3))getRealOffset(oxo("0x4A134BC")))(p, dir);
+    auto fn = (void(*)(void*,Vector3))getRealOffset(oxo("0x4A134BC"));
+    if (fn) fn(p, dir);
 }
 static void SetGameTimeScale(float s) {
-    ((void(*)(float))getRealOffset(oxo("0x854EC68")))(s);
+    auto fn = (void(*)(float))getRealOffset(oxo("0x854EC68"));
+    if (fn) fn(s);
 }
 
 // ── Feature functions ─────────────────────────────────────────────────────────
@@ -445,13 +449,15 @@ void new_AutoFire(void *_this, int32_t pFireStatus, int32_t pFireMode) {
 }
 void initAutoFireHook() {
     static bool done = false; if (done) return; done = true;
-    MSHookFunction((void*)getRealOffset(oxo("0x4A05634")),
-                   (void*)new_AutoFire, (void**)&_AutoFire);
+    void *addr = (void*)getRealOffset(oxo("0x4A05634"));
+    if (addr) MSHookFunction(addr, (void*)new_AutoFire, (void**)&_AutoFire);
 }
 
 // ── ZX_ApplyAndRun — called every frame by GameRunner ────────────────────────
 void ZX_ApplyAndRun() {
     initOB53();
+    // Guard: don't run ESP/feature logic until game SDK pointers are valid
+    if (!game_sdk->Curent_Match || !game_sdk->GetLocalPlayer) return;
 
     // sync ZX_ bools → Vars fields
     Vars.AutoFire    = ZX_FastFire || Vars.AutoFire;
