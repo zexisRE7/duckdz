@@ -1,6 +1,5 @@
-
-// Forward-declare DobbyHook — linked via $(TWEAK_NAME)_LIBRARIES = dobby
-extern "C" int DobbyHook(void *address, void *replace_call, void **origin_call);
+#pragma once
+// MSHookFunction is provided by CydiaSubstrate (linked automatically by Theos)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper/Hooks.h  — OB53 offsets + feature logic
@@ -446,8 +445,8 @@ void new_AutoFire(void *_this, int32_t pFireStatus, int32_t pFireMode) {
 }
 void initAutoFireHook() {
     static bool done = false; if (done) return; done = true;
-    DobbyHook((void*)getRealOffset(oxo("0x4A05634")),
-              (void*)new_AutoFire, (void**)&_AutoFire);
+    MSHookFunction((void*)getRealOffset(oxo("0x4A05634")),
+                   (void*)new_AutoFire, (void**)&_AutoFire);
 }
 
 // ── ZX_ApplyAndRun — called every frame by GameRunner ────────────────────────
