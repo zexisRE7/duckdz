@@ -23,6 +23,8 @@ $(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wall \
     -Wno-deprecated-declarations -Wno-unused-variable \
     -Wno-unused-value -Wno-unused-function
 
+$(TWEAK_NAME)_LIBRARIES = substrate
+
 $(TWEAK_NAME)_LDFLAGS  = -lSystem
 $(TWEAK_NAME)_LDFLAGS += JRMemory.framework/JRMemory
 $(TWEAK_NAME)_LDFLAGS += KittyMemory/Deps/Keystone/libs-ios/arm64/libkeystone.a
