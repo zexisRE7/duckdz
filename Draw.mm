@@ -152,21 +152,23 @@ typedef NS_ENUM(NSInteger, MenuTab) {
     NSMutableDictionary *allCheckboxes;
 }
 
-- (void)updateFrame {
-    // Basic implementation to satisfy the protocol
-}
-
 static ModMenuViewController *g_ModMenuInstance = nil;
 void SetModMenuInstance(ModMenuViewController *inst) { g_ModMenuInstance = inst; }
 
 UIColor* GetThemeAccentColor(void) {
-    return [[ThemeManager shared] accentColor];
+    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(accentColor)])
+        return [g_ModMenuInstance accentColor];
+    return [UIColor colorWithRed:1.0 green:0.2 blue:0.2 alpha:1.0];
 }
 UIColor* GetThemeTextColor(void) {
-    return [[ThemeManager shared] textColor];
+    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(textColor)])
+        return [g_ModMenuInstance textColor];
+    return [UIColor whiteColor];
 }
 UIColor* GetThemeGlowColor(void) {
-    return [[ThemeManager shared] accentColor]; // Use accentColor as fallback for glow
+    if (g_ModMenuInstance && [g_ModMenuInstance respondsToSelector:@selector(glowColor)])
+        return [g_ModMenuInstance glowColor];
+    return [UIColor colorWithRed:1.0 green:0.2 blue:0.2 alpha:0.7];
 }
 
 - (id)getLicenseManager {
@@ -201,13 +203,13 @@ float fastmedkit(void *_this) { return 9.0; }
     dispatch_once(&onceToken, ^{ game_sdk->init(); });
 
     // ── Install BLAGCMCGEJG1 silent-aim hook ──────────────────────────────────
-    // Hooking disabled due to missing StaticInlineHook symbols
-    /*
     static dispatch_once_t hookOnce;
     dispatch_once(&hookOnce, ^{
-        // ...
+        MSHookFunction(
+            (void*)getRealOffset(oxo("0x4EB3E88")),
+            (void*)BLAGCMCGEJG1,
+            (void**)&old_BLAGCMCGEJG1);
     });
-    */
 
     [self loadSettingsFromFile];
     [self loadUIState];
@@ -615,12 +617,23 @@ float fastmedkit(void *_this) { return 9.0; }
     return (x == 0 && y == 0) ? CGPointMake(40, 100) : CGPointMake(x, y);
 }
 
-// Missing Vars_t fields referenced elsewhere but not in Vars.h — define here:
-// (Vars.BulletPenetration / Vars.LongRange / Vars.FreeFly / Vars.ChainDamage /
-//  Vars.IgnoreKnocked / Vars.AimKill — these need adding to Vars.h in duckdz,
-//  but we can also patch here temporarily.)
-// NOTE: Those fields are referenced in Hooks.h and must exist.
-// They are already in Vars_t (e.g. FlyAltura, rateoffire). Some have different
-// names and are mapped in ZX_ApplyAndRun(). See FIELD_MAP below.
+#pragma mark - Required protocol methods (declared in drawview.h)
+
+// Called by drawview.h / CADisplayLink each frame — forward to game runner
+- (void)updateFrame {
+    self.frameCount++;
+    ZX_ApplyAndRun();
+}
+
+// Theme colors used by drawfunc.h drawing helpers
+- (UIColor *)accentColor {
+    return [UIColor colorWithRed:0.85 green:0.15 blue:0.15 alpha:1.0];
+}
+- (UIColor *)textColor {
+    return [UIColor whiteColor];
+}
+- (UIColor *)glowColor {
+    return [UIColor colorWithRed:0.85 green:0.15 blue:0.15 alpha:0.7];
+}
 
 @end
