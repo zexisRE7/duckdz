@@ -25,6 +25,7 @@ $(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wall \
 
 $(TWEAK_NAME)_LDFLAGS  = -lSystem
 $(TWEAK_NAME)_LDFLAGS += JRMemory.framework/JRMemory
+$(TWEAK_NAME)_LDFLAGS += KittyMemory/Deps/Keystone/libs-ios/arm64/libkeystone.a
 
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation Security QuartzCore \
     CoreGraphics CoreText AVFoundation Accelerate GLKit \
