@@ -18,21 +18,28 @@ jobs:
 
       - name: Setup Theos
         run: |
-          sudo git clone --recursive https://github.com/theos/theos.git /opt/theos
-          sudo chown -R <LaTex>$(id -u):$</LaTex>(id -g) /opt/theos
-          git clone https://github.com/theos/sdks.git /opt/theos/sdks
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
 
-      - name: Build Tweak
+      - name: Setup Environment
         run: |
-          export THEOS=/opt/theos
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          echo "$HOME/theos/bin" >> $GITHUB_PATH
+
+      - name: Clean & Build
+        run: |
+          export THEOS=$HOME/theos
           export THEOS_PACKAGE_SCHEME=rootless
+          make clean
           make FINALPACKAGE=1 DEBUG=0 -j$(sysctl -n hw.logicalcpu)
+
+      - name: Collect dylib
+        run: |
           mkdir -p output
-          find .theos/obj -name "*.dylib" -exec cp {} output/ \;
+          find . -name "*.dylib" -type f -exec cp {} output/ \;
 
       - name: Upload Dylib Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ffz-dylib
+          name: dylib-output
           path: output/*.dylib
           if-no-files-found: error
