@@ -1,8 +1,6 @@
 #import "GameRunner.h"
 #import <QuartzCore/QuartzCore.h>
 
-// ZX_ApplyAndRun is defined in Draw.mm (via Hooks.h) — just forward-declare it
-extern void ZX_ApplyAndRun();
 
 static CADisplayLink *g_displayLink = nil;
 
@@ -23,9 +21,7 @@ static CADisplayLink *g_displayLink = nil;
 }
 
 + (void)tick:(CADisplayLink *)link {
-    @try {
-        ZX_ApplyAndRun();
-    } @catch (...) {}
+    // UI-only build — game hooks disabled
 }
 
 @end
