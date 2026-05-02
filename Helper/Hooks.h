@@ -444,8 +444,8 @@ void new_AutoFire(void *_this, int32_t pFireStatus, int32_t pFireMode) {
 }
 void initAutoFireHook() {
     static bool done = false; if (done) return; done = true;
-    MSHookFunction((void*)getRealOffset(oxo("0x4A05634")),
-                   (void*)new_AutoFire, (void**)&_AutoFire);
+    DobbyHook((void*)getRealOffset(oxo("0x4A05634")),
+              (void*)new_AutoFire, (void**)&_AutoFire);
 }
 
 // ── ZX_ApplyAndRun — called every frame by GameRunner ────────────────────────
