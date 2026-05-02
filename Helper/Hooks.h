@@ -1,4 +1,5 @@
 #pragma once
+#include <dobby.h>
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper/Hooks.h  — OB53 offsets + feature logic
