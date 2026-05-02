@@ -1,0 +1,22 @@
+# Theos build output
+packages/
+.theos/
+obj/
+*.deb
+*.ipa
+
+# Framework binaries (too large for git — stored in GitHub Secrets as base64)
+JRMemory.framework/JRMemory
+JRMemory.framework/Headers/
+
+# Static libs
+libdobby.a
+hook/libzexis.a
+hook/hook.o
+hook/mach_excServer.o
+KittyMemory/Deps/Keystone/libs-ios/
+
+# Misc
+*.DS_Store
+.idea/
+*.swp
