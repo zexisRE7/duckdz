@@ -15,11 +15,9 @@
 // Global variables
 
 extern BOOL StreamMode;
-extern unsigned int framework_size;
-extern uint8_t framework_names[][256];
-extern uint8_t framework_hashes[][65];
-extern uint8_t main_exec_hash[];
-
+extern const uint8_t framework_names[][256];
+extern const uint8_t framework_hashes[][65];
+extern const uint8_t main_exec_hash[];
 UIView *protectedView = nil;
 
 // Base64 decode helper
