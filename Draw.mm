@@ -1,3 +1,4 @@
+#import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
 #include <iostream>
@@ -66,7 +67,6 @@
 // ── Wwww-main game logic ──────────────────────────────────────────────────────
 // Include AFTER all standard headers so types/macros are resolved
 #include "Helper/Hooks.h"
-extern "C" void A64HookFunction(void *address, void *hook, void **orig);
 
 #define patch_NULL(a, b) \
     vm(ENCRYPTOFFSET(a), strtoul(ENCRYPTHEX(b), nullptr, 0))
@@ -204,7 +204,7 @@ float fastmedkit(void *_this) { return 9.0; }
     // ── Install BLAGCMCGEJG1 silent-aim hook ──────────────────────────────────
     static dispatch_once_t hookOnce;
     dispatch_once(&hookOnce, ^{
-        A64HookFunction(
+        MSHookFunction(
             (void*)getRealOffset(oxo("0x4EB3E88")),
             (void*)BLAGCMCGEJG1,
             (void**)&old_BLAGCMCGEJG1);
