@@ -23,8 +23,7 @@ $(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wall \
     -Wno-deprecated-declarations -Wno-unused-variable \
     -Wno-unused-value -Wno-unused-function
 
-$(TWEAK_NAME)_LDFLAGS  = -lSystem
-$(TWEAK_NAME)_LDFLAGS += JRMemory.framework/JRMemory
+$(TWEAK_NAME)_LDFLAGS  = -dobby(TWEAK_NAME)_LDFLAGS += JRMemory.framework/JRMemory
 
 $(TWEAK_NAME)_OBJ_FILES = \
     KittyMemory/Deps/Keystone/libs-ios/$(THEOS_CURRENT_ARCH)/libkeystone.a
