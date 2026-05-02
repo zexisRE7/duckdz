@@ -66,6 +66,7 @@
 // ── Wwww-main game logic ──────────────────────────────────────────────────────
 // Include AFTER all standard headers so types/macros are resolved
 #include "Helper/Hooks.h"
+extern "C" void A64HookFunction(void *address, void *hook, void **orig);
 
 #define patch_NULL(a, b) \
     vm(ENCRYPTOFFSET(a), strtoul(ENCRYPTHEX(b), nullptr, 0))
