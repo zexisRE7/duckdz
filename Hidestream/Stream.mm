@@ -11,6 +11,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 // Global variables
 
 UIView *protectedView = nil;
