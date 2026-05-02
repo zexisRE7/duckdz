@@ -1,5 +1,7 @@
 #pragma once
-#include <dobby.h>
+
+// Forward-declare DobbyHook — linked via $(TWEAK_NAME)_LIBRARIES = dobby
+extern "C" int DobbyHook(void *address, void *replace_call, void **origin_call);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper/Hooks.h  — OB53 offsets + feature logic
